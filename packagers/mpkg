@@ -1,0 +1,35 @@
+#!/bin/sh
+
+package () {
+    workdir=$(mktemp -d /tmp/morph-mpkg.XXXXXXXX)
+    cd $workdir
+
+    cp -R $pkgdir/* .
+
+    mkdir install
+    cat > install/data.xml << XML
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+<name>$name</name>
+<version>$version</version>
+<arch>$arch</arch>
+<build>$mbuild</build>
+<short_description></short_description>
+<dependencies/>
+<suggests/>
+<maintainer>
+	<name>K900</name>
+	<email>k0009000@gmail.com</email>
+</maintainer>
+<tags>
+XML
+
+    for item in $(echo $tags | tr "," "\n"); do
+        echo "<tag>$item</tag>" >> install/data.xml
+    done
+    echo "</tags></package>" >> install/data.xml
+
+    tar cjf $package_out_dir/$name-$version-$arch-$mbuild.txz *
+
+    rm -rf $workdir
+}

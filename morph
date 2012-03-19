@@ -1,0 +1,185 @@
+#!/bin/sh
+
+MORPH_DIR=$(pwd)
+
+. $MORPH_DIR/morphrc
+. $MORPH_DIR/lib/debug
+
+validate () {
+    if [ -z "$name" ]; then
+        die "Package name is not set!"
+    fi
+    if [ -z "$version" ]; then
+        die "Version is not set!"
+    fi
+    if [ -z "$mbuild" ]; then
+        warn "Build is not set. Using build=1 by default"
+        mbuild=1
+    fi
+    if [ -z "$arch" ]; then
+        warn "Arch is not set. Using arch=any by default"
+        arch=any
+    fi
+    if [ -z "$description" ]; then
+        die "Description is not set!"
+    fi
+    if [ -z "$source" ]; then
+        warn "Source is not set. Is that what you really want?"
+    fi
+    if [ -z "$tags" ]; then
+        warn "Tags are not set. No one will find your package."
+    fi
+    if [ -z "$depends" ]; then
+        warn "depends is not set. Using depends=auto by default."
+        depends=auto
+    fi
+
+
+    target_arch="$(uname -m)"
+
+    if [ "$arch" == "any" ]; then
+        arch=$target_arch
+    elif [ "$arch" == "noarch" ]; then
+        arch=none
+    else
+        for item in $arch; do
+            if [ "$item" == "$target_arch" ]; then
+                supported=1
+                break
+            fi
+        done
+        if ! [ $supported ]; then
+            die "Unsupported architecture: $target_arch"
+        fi
+    fi
+}
+
+init_structure () {
+    export tmpdir=$(mktemp -d /tmp/morph.XXXXXXXX)
+    export srcdir="$tmpdir/source"
+    export pkgdir="$tmpdir/out/main"
+    for item in $subpackages; do
+        mkdir -p $tmpdir/out/$item
+    done
+    mkdir -p $srcdir
+    mkdir -p $pkgdir
+    mkdir -p $source_cache_dir
+    mkdir -p $package_out_dir
+}
+
+process_source () {
+    source_item=$1
+
+    protocol=$(echo $source_item | cut "-d:" -f1)
+    source_url=$(echo $source_item | sed "s/${protocol}://")
+
+    loader=$MORPH_DIR/loaders/$protocol
+    if [ -f "$loader" ]; then
+        . "$loader"
+    else
+        die "No loader found for protocol $protocol"
+    fi
+
+    srcpath=$source_cache_dir/$name/
+    if [ $returns_dir ]; then
+        srcpath=$srcpath/$(basename $source_url)
+    fi
+
+    mkdir -p $srcpath
+    cd $srcpath
+
+    if check; then
+        update
+    else
+        init
+    fi
+    
+    cd $srcdir
+
+    if [ $returns_dir ]; then
+        cp -r $srcpath/* .
+    else
+        source_file=$srcpath/$(basename $source_url)
+        for unpacker in $(find $MORPH_DIR/unpackers -type f); do
+            . $unpacker
+            if can_unpack; then
+                warn "Using unpacker $unpacker"
+                unpack
+                unpacked=1
+                break
+            fi
+        done
+    fi
+    
+    if ! [ $unpacked ]; then
+        die "Failed to unpack!"
+    fi
+}
+
+is_function () {
+    type $1 | grep -q 'shell function' &> /dev/null
+}
+
+do_autobuild () {
+    if ! [ -f $MORPH_DIR/builders/$1 ]; then
+        die "No such builder: $1"
+    fi
+    . $MORPH_DIR/builders/$1
+    if can_build; then
+        warn "Using builder $1"
+        build || false
+    else
+        false
+    fi
+}
+
+autobuild () {
+    if [ $1 ]; then
+        do_autobuild $1 && built=1
+    else
+        for builder in $(find $MORPH_DIR/builders -type f); do
+            if do_autobuild $(basename $builder); then
+                warn "Built using $builder"
+                built=1
+                break
+            fi
+        done
+    fi
+    if ! [ "$built" ]; then
+        die "Failed to autobuild!"
+    fi
+}
+
+go_src_dir () {
+    cd $srcdir
+    # TODO advanced heuristics :)
+    if [ -d $name-$version ]; then
+        cd $name-$version
+    fi
+}
+
+. ./MORPHBUILD
+validate
+
+init_structure
+
+for item in $source; do
+    process_source $item
+done
+
+go_src_dir
+
+if is_function build; then
+    build
+elif [ $autobuild ]; then
+    autobuild $autobuild
+else
+    autobuild
+fi
+
+for packager in $(find $MORPH_DIR/packagers -type f); do
+    . $packager
+    package
+done
+
+rm -rf $tmpdir

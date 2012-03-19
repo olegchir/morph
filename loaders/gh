@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# A GitHub loader for morph
+# Usage: 
+# gh:<username>/<repo name>
+# If git_branch is set, it will be used as a branch name.
+
+source_url="https://github.com/${source_url}.git"
+
+. $MORPH_DIR/loaders/git

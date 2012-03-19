@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# color constants
+RED='\e[0;31m'
+RESET='\e[0m'
+
+warn () {
+    echo -e ${RED}WARNING: ${RESET}$1 1>&2
+}
+
+die () {
+    echo -e ${RED}FATAL: $1${RESET} 1>&2
+    exit 1
+}

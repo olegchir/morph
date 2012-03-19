@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if [ -z $python ]; then
+    python=$(which python) &> /dev/null
+fi
+
+can_build () {
+    [ -f setup.py ] && [ -f $python ]
+}
+
+build () {
+    $python setup.py build
+    $python setup.py install --root=$pkgdir --optimize=1
+}

@@ -1,0 +1,2 @@
+source_cache_dir=~/.morph/cache
+package_out_dir=~/.morph/packages

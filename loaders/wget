@@ -1,0 +1,17 @@
+#!/bin/sh
+
+check () {
+    [ -f $(basename ${source_url}) ]
+}
+
+init () {
+    wget $(basename $loader):${source_url}
+}
+
+update () {
+    if [ "$wget_update" ]; then
+        wget -N $(basename $loader):${source_url}
+    else
+        true
+    fi
+}

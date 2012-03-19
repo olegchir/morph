@@ -1,0 +1,9 @@
+#!/bin/sh
+
+can_unpack () {
+    tar tf $source_file &> /dev/null
+}
+
+unpack () {
+    tar xf $source_file
+}

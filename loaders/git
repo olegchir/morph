@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# A git loader for morph.
+# Usage: 
+# git:<clone url>
+# If git_branch is set, it will be used as a branch name.
+
+is_vcs=1
+returns_directory=1
+
+if [ "${git_branch}" ] ; then
+    branch_arg=" -b ${git_branch}"
+fi
+
+check () {
+    [ -d ".git" ]
+}
+
+init () {
+    git clone ${source_url} ${branch_arg} .
+}
+
+update () {
+    if [ "${git_branch}" ]; then
+        current_branch=$(git branch --no-color | sed "s/* //g")
+    fi
+    if [ "${current_branch}" != "${git_branch}" ]; then
+        git checkout ${git_branch}
+    fi
+    git pull
+}
