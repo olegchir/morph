@@ -29,7 +29,11 @@ XML
     done
     echo "</tags></package>" >> install/data.xml
 
-    tar cjf $package_out_dir/$name-$version-$arch-$mbuild.txz *
+    pkgfile=$package_out_dir/$name-$version-$arch-$mbuild.txz
+
+    info "Creating $pkgfile..."
+    tar cvf $pkgfile *
 
     rm -rf $workdir
+    info "$pkgfile created!"
 }
