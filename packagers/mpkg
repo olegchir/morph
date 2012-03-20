@@ -32,7 +32,9 @@ XML
     pkgfile=$package_out_dir/$name-$version-$arch-$mbuild.txz
 
     info "Creating $pkgfile..."
-    tar cvf $pkgfile *
+
+    [ "$MORPH_DEBUG" -gt 0 ] && v=v
+    tar cf$v $pkgfile *
 
     rm -rf $workdir
     info "$pkgfile created!"
