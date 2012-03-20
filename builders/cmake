@@ -1,0 +1,17 @@
+#!/bin/sh
+
+default_cmake_keys="-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=RELEASE"
+
+can_build () {
+    [ -f CMakeLists.txt ]
+}
+
+build () {
+    mkdir morph_cmake_build
+    cd morph_cmake_build
+    cmake $default_cmake_keys $cmake_keys ../
+    make -j$numjobs
+    make DESTDIR=$pkgdir install
+    cd ..
+    rm -rf morph_cmake_build
+}
