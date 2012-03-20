@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if ! [ $MORPH_DIR ]; then
     if [ -d /usr/share/morph ]; then
