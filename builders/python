@@ -4,6 +4,10 @@ if [ -z $python ]; then
     python=$(which python) &> /dev/null
 fi
 
+if ! [ -f $python ]; then
+    python=$(which $python) &> /dev/null
+fi
+
 can_build () {
     [ -f setup.py ] && [ -f $python ]
 }
