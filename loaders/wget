@@ -5,7 +5,17 @@ check () {
 }
 
 init () {
-    wget $(basename $loader):${source_url}
+    proto=$(basename $loader)
+    partname=$(basename $source_url).part
+    if [ -f $partname ]; then
+        if ! wget -c $proto:${source_url} -O $partname; then
+            rm $partname
+            wget $proto:${source_url} -O $partname
+        fi
+    else
+        wget $proto:${source_url} -O $partname
+    fi
+    mv $partname $(basename $source_url)
 }
 
 update () {
