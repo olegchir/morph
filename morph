@@ -1,14 +1,14 @@
 #!/bin/bash
 
-if ! [ $MORPH_DIR ]; then
-    if [ -d /usr/share/morph ]; then
+if ! [[ $MORPH_DIR ]]; then
+    if [[ -d /usr/share/morph ]]; then
         MORPH_DIR=/usr/share/morph
     else
         MORPH_DIR=$(dirname $(readlink -f $0))
     fi
 fi
 
-if [ -z $MORPH_DEBUG ]; then
+if [[ -z $MORPH_DEBUG ]]; then
     MORPH_DEBUG=0
 fi
 
@@ -16,50 +16,50 @@ fi
 . $MORPH_DIR/lib/debug
 
 validate () {
-    if [ -z "$name" ]; then
+    if [[ -z "$name" ]]; then
         die "Package name is not set!"
     fi
-    if [ -z "$version" ]; then
+    if [[ -z "$version" ]]; then
         die "Version is not set!"
     fi
-    if [ -z "$mbuild" ]; then
+    if [[ -z "$mbuild" ]]; then
         warn "Build is not set. Using build=1 by default"
         mbuild=1
     fi
-    if [ -z "$arch" ]; then
+    if [[ -z "$arch" ]]; then
         warn "Arch is not set. Using arch=any by default"
         arch=any
     fi
-    if [ -z "$description" ]; then
+    if [[ -z "$description" ]]; then
         die "Description is not set!"
     fi
-    if [ -z "$source" ]; then
+    if [[ -z "$source" ]]; then
         warn "Source is not set. Is that what you really want?"
     fi
-    if [ -z "$tags" ]; then
+    if [[ -z "$tags" ]]; then
         warn "Tags are not set. No one will find your package."
     fi
-    if [ -z "$depends" ]; then
+    if [[ -z "$depends" ]]; then
         warn "depends is not set. Using depends=auto by default."
         depends=auto
     fi
 
-    if [ -z $target_arch ]; then
+    if [[ -z $target_arch ]]; then
         target_arch="$(uname -m)"
     fi
 
-    if [ "$arch" == "any" ]; then
+    if [[ "$arch" == "any" ]]; then
         arch=$target_arch
-    elif [ "$arch" == "noarch" ]; then
+    elif [[ "$arch" == "noarch" ]]; then
         arch=none
     else
         for item in $arch; do
-            if [ "$item" == "$target_arch" ]; then
+            if [[ "$item" == "$target_arch" ]]; then
                 supported=1
                 break
             fi
         done
-        if ! [ $supported ]; then
+        if ! [[ $supported ]]; then
             die "Unsupported architecture: $target_arch"
         fi
     fi
@@ -85,14 +85,14 @@ process_source () {
     source_url=$(echo $source_item | sed "s/${protocol}://")
 
     loader=$MORPH_DIR/loaders/$protocol
-    if [ -f "$loader" ]; then
+    if [[ -f "$loader" ]]; then
         . "$loader"
     else
         die "No loader found for protocol $protocol"
     fi
 
     srcpath=$source_cache_dir/$name/
-    if [ $returns_dir ]; then
+    if [[ $returns_dir ]]; then
         srcpath=$srcpath/$(basename $source_url)
     fi
 
@@ -107,7 +107,7 @@ process_source () {
     
     cd $srcdir
 
-    if [ $returns_dir ]; then
+    if [[ $returns_dir ]]; then
         cp -r $srcpath/* .
     else
         source_file=$srcpath/$(basename $source_url)
@@ -122,7 +122,7 @@ process_source () {
         done
     fi
     
-    if ! [ $unpacked ]; then
+    if ! [[ $unpacked ]]; then
         die "Failed to unpack!"
     fi
 }
@@ -132,7 +132,7 @@ is_function () {
 }
 
 do_autobuild () {
-    if ! [ -f $MORPH_DIR/builders/$1 ]; then
+    if ! [[ -f $MORPH_DIR/builders/$1 ]]; then
         die "No such builder: $1"
     fi
     . $MORPH_DIR/builders/$1
@@ -145,7 +145,7 @@ do_autobuild () {
 }
 
 autobuild () {
-    if [ $1 ]; then
+    if [[ $1 ]]; then
         do_autobuild $1 && built=1
     else
         for builder in $(find $MORPH_DIR/builders -type f); do
@@ -156,7 +156,7 @@ autobuild () {
             fi
         done
     fi
-    if ! [ "$built" ]; then
+    if ! [[ "$built" ]]; then
         die "Failed to autobuild!"
     fi
 }
@@ -164,7 +164,7 @@ autobuild () {
 go_src_dir () {
     cd $srcdir
     # TODO advanced heuristics :)
-    if [ -d $name-$version ]; then
+    if [[ -d $name-$version ]]; then
         cd $name-$version
     fi
 }
@@ -185,8 +185,8 @@ eval set -- "$argv"
 declare -i positional_count=0
 positional_args=""
 
-while [ $1 ]; do
-    if [ $positionals ]; then
+while [[ $1 ]]; do
+    if [[ $positionals ]]; then
         positional_count=$(($positional_count + 1))
         positional_args="$1"
     else
@@ -202,7 +202,7 @@ while [ $1 ]; do
                 show_help
                 ;;
             -s|--spawn)
-                if [ -f MORPHLING ]; then
+                if [[ -f MORPHLING ]]; then
                     die "There is a MORPHLING here already!"
                 fi
                 cp $MORPH_DIR/SAMPLE MORPHLING
@@ -228,8 +228,8 @@ while [ $1 ]; do
     shift
 done
 
-if [ $build_tree ]; then
-    if [ $positional_count -gt 0 ]; then
+if [[ $build_tree ]]; then
+    if [[ $positional_count -gt 0 ]]; then
         die "Can't have --tree and positional args at the same time"
     else
         tree_path=$(mktemp -d /tmp/morph-tree.XXXXXX)
@@ -238,10 +238,10 @@ if [ $build_tree ]; then
         path=$(pwd)
     fi
 else
-    if [ "$positional_count" -gt 1 ]; then
+    if [[ "$positional_count" -gt 1 ]]; then
         die "Too many positional arguments!"
-    elif [ "$positional_count" == "1" ]; then
-        if [ -d $positional_args ]; then
+    elif [[ "$positional_count" == "1" ]]; then
+        if [[ -d $positional_args ]]; then
             path=$positional_args
         else
             die "$positional_args is not a directory!"
@@ -251,7 +251,7 @@ else
     fi
 fi
 
-if ! [ -f $path/MORPHLING ]; then
+if ! [[ -f $path/MORPHLING ]]; then
     die "No MORPHLING found in $path!"
 fi
 
@@ -268,7 +268,7 @@ go_src_dir
 
 if is_function build; then
     build
-elif [ $autobuild ]; then
+elif [[ $autobuild ]]; then
     autobuild $autobuild
 else
     autobuild

@@ -8,12 +8,12 @@
 is_vcs=1
 returns_directory=1
 
-if [ "${git_branch}" ] ; then
+if [[ "${git_branch}" ]] ; then
     branch_arg=" -b ${git_branch}"
 fi
 
 check () {
-    [ -d ".git" ]
+    [[ -d ".git" ]]
 }
 
 init () {
@@ -21,10 +21,10 @@ init () {
 }
 
 update () {
-    if [ "${git_branch}" ]; then
+    if [[ "${git_branch}" ]]; then
         current_branch=$(git branch --no-color | sed "s/* //g")
     fi
-    if [ "${current_branch}" != "${git_branch}" ]; then
+    if [[ "${current_branch}" != "${git_branch}" ]]; then
         git checkout ${git_branch}
     fi
     git pull

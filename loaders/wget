@@ -1,13 +1,13 @@
 #!/bin/sh
 
 check () {
-    [ -f $(basename ${source_url}) ]
+    [[ -f $(basename ${source_url}) ]]
 }
 
 init () {
     proto=$(basename $loader)
     partname=$(basename $source_url).part
-    if [ -f $partname ]; then
+    if [[ -f $partname ]]; then
         if ! wget -c $proto:${source_url} -O $partname; then
             rm $partname
             wget $proto:${source_url} -O $partname
@@ -19,7 +19,7 @@ init () {
 }
 
 update () {
-    if [ "$wget_update" ]; then
+    if [[ "$wget_update" ]]; then
         wget -N $(basename $loader):${source_url}
     else
         true
