@@ -34,7 +34,7 @@ XML
     info "Creating $pkgfile..."
 
     [[ "$MORPH_DEBUG" -gt 0 ]] && v=v
-    tar cf$v $pkgfile *
+    tar cJf$v $pkgfile *
 
     rm -rf $workdir
     info "$pkgfile created!"
