@@ -1,6 +1,6 @@
 #!/bin/sh
 
-can_unpack () {
+check () {
     tar tf $source_file &> /dev/null
 }
 

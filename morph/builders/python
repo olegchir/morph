@@ -8,7 +8,7 @@ if ! [[ -f $python ]]; then
     python=$(which $python) &> /dev/null
 fi
 
-can_build () {
+check () {
     [[ -f setup.py ]] && [[ -f $python ]]
 }
 
