@@ -1,10 +1,10 @@
 #!/bin/sh
 
 # color constants
-RED='\e[[0;31m'
-BLUE='\e[[0;34m'
-GREEN='\e[[0;32m'
-RESET='\e[[0m'
+RED='\e[0;31m'
+BLUE='\e[0;34m'
+GREEN='\e[0;32m'
+RESET='\e[0m'
 
 warn () {
     echo -e ${RED}WARNING: ${RESET}$1 1>&2

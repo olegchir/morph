@@ -6,7 +6,7 @@
 # If git_branch is set, it will be used as a branch name.
 
 is_vcs=1
-returns_directory=1
+returns_dir=1
 
 if [[ "${git_branch}" ]] ; then
     branch_arg=" -b ${git_branch}"

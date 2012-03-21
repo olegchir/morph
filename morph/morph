@@ -109,6 +109,7 @@ process_source () {
 
     if [[ $returns_dir ]]; then
         cp -r $srcpath/* .
+        unpacked=1
     else
         source_file=$srcpath/$(basename $source_url)
         for unpacker in $(find $MORPH_DIR/unpackers -type f); do
@@ -128,7 +129,7 @@ process_source () {
 }
 
 is_function () {
-    type $1 2>&1 | grep -q 'shell function' &> /dev/null
+    declare -f $1 > /dev/null
 }
 
 do_autobuild () {
@@ -167,6 +168,14 @@ go_src_dir () {
     if [[ -d $name-$version ]]; then
         cd $name-$version
     fi
+}
+
+set_flags () {
+    num_cpu_cores=$(cat /proc/cpuinfo | grep processor | wc -l)
+    if ! [[ $make_threads ]]; then
+        make_threads=$(($num_cpu_cores + 1))
+    fi
+    make_flags="-j$make_threads $make_flags"
 }
 
 # Options:
@@ -265,6 +274,8 @@ for item in $source; do
 done
 
 go_src_dir
+
+set_flags
 
 if is_function build; then
     build

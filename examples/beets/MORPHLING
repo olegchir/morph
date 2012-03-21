@@ -6,3 +6,5 @@ description="A music geek's library organizer"
 source="http://pypi.python.org/packages/source/b/beets/beets-$version.tar.gz"
 
 tags="music,library organizer,player,console,python"
+
+autobuild="python"

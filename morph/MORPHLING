@@ -1,0 +1,12 @@
+name=morph
+version=0.1
+
+description="Morph is WhateverTheNameLinux's new package building system"
+
+source="gh:AgiliaLinux/morph"
+
+tags="console,development,packaging,distro-specific,mpkg"
+
+build () {
+    PREFIX=$pkgdir ./install.sh
+}
