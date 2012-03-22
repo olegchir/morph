@@ -69,6 +69,9 @@ init_structure () {
     export tmpdir=$(mktemp -d /tmp/morph.XXXXXXXX)
     export srcdir="$tmpdir/source"
     export pkgdir="$tmpdir/out/main"
+    export filedir="$path/files"
+    export patchdir="$path/patches"
+
     for item in $subpackages; do
         mkdir -p $tmpdir/out/$item
     done
@@ -91,7 +94,9 @@ process_source () {
         die "No loader found for protocol $protocol"
     fi
 
-    srcpath=$source_cache_dir/$name/
+    [[ $source_package ]] || source_package=$name
+
+    srcpath=$source_cache_dir/$source_package/
     if [[ $returns_dir ]]; then
         srcpath=$srcpath/$(basename $source_url)
     fi
