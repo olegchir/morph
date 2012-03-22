@@ -108,6 +108,11 @@ process_source () {
     cd $srcdir
 
     if [[ $returns_dir ]]; then
+        if is_function prepare_source; then
+            cd $srcpath
+            prepare_source
+            cd $srcdir
+        fi
         cp -r $srcpath/* .
         unpacked=1
     else
