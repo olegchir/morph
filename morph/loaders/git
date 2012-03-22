@@ -17,7 +17,7 @@ check () {
 }
 
 init () {
-    git clone ${source_url} ${branch_arg} .
+    git clone ${source_url} ${branch_arg} $(pwd)
 }
 
 update () {
