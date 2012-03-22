@@ -1,0 +1,5 @@
+name=bad_package
+version=1
+
+# FAIL
+maintainer_name=Zerathul
