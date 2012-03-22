@@ -1,3 +1,5 @@
+maintainer_name=K900
+maintainer_email=k0009000@gmail.com
 ccache=4G
 ccache_path=~/.morph/ccache/
 source_cache_dir=~/.morph/cache

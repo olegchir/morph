@@ -18,9 +18,21 @@ if [[ -z $MORPH_DEBUG ]]; then
 fi
 
 . $MORPH_DIR/morphrc
+
+declare -r maintainer_name=$maintainer_name
+declare -r maintainer_email=$maintainer_email
+
 . $MORPH_DIR/lib/debug
 
 validate () {
+    if [[ -z "$maintainer_name" ]]; then
+        warn "maintainer_name not set in morphrc"
+    fi
+
+    if [[ -z "$maintainer_email" ]]; then
+        warn "maintainer_email not set in morphrc"
+    fi
+
     if [[ -z "$name" ]]; then
         die "Package name is not set!"
     fi
@@ -297,7 +309,9 @@ if ! [[ -f $path/MORPHLING ]]; then
     die "No MORPHLING found in $path!"
 fi
 
+set -e
 . $path/MORPHLING
+set +e
 validate
 
 init_global
