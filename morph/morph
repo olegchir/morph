@@ -65,20 +65,20 @@ validate () {
     fi
 }
 
-init_structure () {
+init_global () {
     export tmpdir=$(mktemp -d /tmp/morph.XXXXXXXX)
     export srcdir="$tmpdir/source"
-    export pkgdir="$tmpdir/out/main"
     export filedir="$path/files"
     export patchdir="$path/patches"
 
-    for item in $subpackages; do
-        mkdir -p $tmpdir/out/$item
-    done
     mkdir -p $srcdir
-    mkdir -p $pkgdir
     mkdir -p $source_cache_dir
     mkdir -p $package_out_dir
+}
+
+init_package () {    
+    export pkgdir="$tmpdir/out/$name"
+    mkdir -p $pkgdir
 }
 
 process_source () {
@@ -295,27 +295,45 @@ fi
 . $path/MORPHLING
 validate
 
-init_structure
+init_global
 
-for item in $source; do
-    process_source $item
-done
+load_package() {
+    is_function $1 && $1
 
-go_src_dir
+    init_package
 
-set_flags
+    for item in $source; do
+	    process_source $item
+    done
 
-if is_function build; then
-    build
-elif [[ $autobuild ]]; then
-    autobuild $autobuild
-else
-    autobuild
-fi
+    go_src_dir
 
-for packager in $(find $MORPH_DIR/packagers -type f -executable); do
-    . $packager
-    package
+    set_flags
+
+    if is_function build; then
+    	build
+    elif [[ $autobuild ]]; then
+    	autobuild $autobuild
+    else
+    	autobuild
+    fi
+
+    cd $pkgdir
+    for packager in $(find $MORPH_DIR/packagers -type f -executable); do
+    	. $packager
+    	package
+    done
+}
+
+load_package
+
+export p_name=$name
+export p_version=$version
+export p_mbuild=$mbuild
+export p_pkgdir=$pkgdir
+
+for item in $subpackages; do
+    load_package $item
 done
 
 rm -rf $tmpdir
