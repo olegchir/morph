@@ -1,0 +1,14 @@
+name=morph
+version=0.1
+
+description="Morph is WhateverTheNameLinux's new package building system"
+
+source="gh:0xd34df00d/leechcraft"
+
+tags="qt,browser,im,bittorrent,plugins"
+
+build () {
+    cd src
+    cmake_keys="-DWITH_PLUGINS=False"
+    autobuild cmake
+}
