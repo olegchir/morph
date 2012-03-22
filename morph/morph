@@ -312,19 +312,19 @@ load_package() {
 
     go_src_dir
 
-    if is_function build; then
-    	build
-    elif [[ $autobuild ]]; then
-    	autobuild $autobuild
+    if ( set -e; is_function build && build || autobuild $autobuild; set +e ); then
+        if [[ "$(find $pkgdir | wc -l)" == "1" ]]; then
+            warn "Empty package $name!"
+        else
+            cd $pkgdir
+            for packager in $(find $MORPH_DIR/packagers -type f -executable); do
+            	. $packager
+            	package
+            done
+        fi
     else
-    	autobuild
+        warn "Failed to build package $name!"
     fi
-
-    cd $pkgdir
-    for packager in $(find $MORPH_DIR/packagers -type f -executable); do
-    	. $packager
-    	package
-    done
 }
 
 load_package
