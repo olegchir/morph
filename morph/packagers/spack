@@ -1,0 +1,44 @@
+#!/bin/sh
+
+package () {
+
+    tempdir=$(mktemp -d /tmp/morph-spack-XXXXXXXX)
+    workdir=$tempdir/$name.pkg
+
+    spack makepackage $pkgdir $workdir
+
+    cat > $workdir/meta/pkginfo << EOF
+name=$name
+description=$description
+version=$version
+architecture=$arch
+maintainername=$maintainer_name
+maintaineremail=$maintainer_email
+EOF
+
+    for item in $depends; do
+        echo $item >> $workdir/meta/depends
+    done
+
+    for item in $optdepends; do
+        echo $item >> $workdir/meta/optdepends
+    done
+
+    for item in $conflicts; do
+        echo $item >> $workdir/meta/conflicts
+    done
+
+    for item in $provides; do
+        echo $item >> $workdir/meta/provides
+    done
+
+    for item in $(echo $tags | tr "," "\n"); do
+        echo $item >> $workdir/meta/tags
+    done
+
+    info "Creating tgz"
+    tar czf $package_out_dir/$name-$version-$arch-$mbuild.pkg.tar.gz $workdir 
+
+    rm -rf $tempdir
+    info "Package created!"
+}
