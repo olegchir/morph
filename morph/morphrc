@@ -1,2 +1,4 @@
+ccache=4G
+ccache_path=~/.morph/ccache/
 source_cache_dir=~/.morph/cache
 package_out_dir=~/.morph/packages

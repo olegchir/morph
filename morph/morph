@@ -113,7 +113,9 @@ process_source () {
             prepare_source
             cd $srcdir
         fi
+        shopt -s dotglob
         cp -r $srcpath/* .
+        shopt -u dotglob
         unpacked=1
     else
         source_file=$srcpath/$(basename $source_url)
@@ -181,6 +183,22 @@ set_flags () {
         make_threads=$(($num_cpu_cores + 1))
     fi
     make_flags="-j$make_threads $make_flags"
+    if which ccache &> /dev/null; then
+        if [[ "$ccache" != "0" ]]; then
+            if ! [[ $ccache ]]; then
+                ccache="4G"
+            fi
+            if ! [[ $ccache_path ]]; then
+                ccache_path=~/.morph/ccache
+            fi
+            export CCACHE_DIR=$ccache_path/$target_arch/
+            mkdir -p $CCACHE_DIR
+            ccache -M $ccache
+            # TODO not cross friendly
+            export CC="$(which ccache) gcc"
+            export CXX="$(which ccache) g++"
+        fi
+    fi
 }
 
 # Options:
