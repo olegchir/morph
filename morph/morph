@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ "$(whoami)" != "root" ]]; then
+    fakeroot $0 $@
+    exit 0
+fi
+
 if ! [[ $MORPH_DIR ]]; then
     if [[ -d /usr/share/morph ]]; then
         MORPH_DIR=/usr/share/morph
