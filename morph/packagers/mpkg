@@ -18,8 +18,8 @@ package () {
 <dependencies/>
 <suggests/>
 <maintainer>
-	<name>K900</name>
-	<email>k0009000@gmail.com</email>
+	<name>$maintainer_name</name>
+	<email>$maintainer_email</email>
 </maintainer>
 <tags>
 XML
