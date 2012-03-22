@@ -1,11 +1,31 @@
-name=morph
+name=leechcraft
 version=0.1
 
-description="Morph is WhateverTheNameLinux's new package building system"
+description="Leechcraft"
 
 source="gh:0xd34df00d/leechcraft"
 
 tags="qt,browser,im,bittorrent,plugins"
+
+prepare_source () {
+    cd src/plugins
+    plugs=$(find -type d -maxdepth 1 -mindepth 1| sed s@./@@g)
+    for item in $plugs; do
+        cd $item
+        desc=$(ack GetInfo -A 3 -h | grep "\".*\"" -o | tail -n 1 | sed s/\"//g | head -n 1)
+        cd ..
+        eval "$item () {
+            name=leechcraft-$item
+            description=\"$desc\"
+            
+            build () {
+                cd src/plugins/$item
+                autobuild cmake
+            }
+        }"
+    done
+    subpackages=$plugs
+}
 
 build () {
     cd src

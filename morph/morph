@@ -88,8 +88,8 @@ process_source () {
     source_url=$(echo $source_item | sed "s/${protocol}://")
 
     loader=$MORPH_DIR/loaders/$protocol
-    if [[ -f "$loader" ]]; then
-        . "$loader"
+    if [[ -f $loader ]]; then
+        . $loader
     else
         die "No loader found for protocol $protocol"
     fi
@@ -187,7 +187,7 @@ set_flags () {
     if ! [[ $make_threads ]]; then
         make_threads=$(($num_cpu_cores + 1))
     fi
-    make_flags="-j$make_threads $make_flags"
+    make_keys="-j$make_threads $make_keys"
     if which ccache &> /dev/null; then
         if [[ "$ccache" != "0" ]]; then
             if ! [[ $ccache ]]; then
@@ -200,8 +200,8 @@ set_flags () {
             mkdir -p $CCACHE_DIR
             ccache -M $ccache
             # TODO not cross friendly
-            export CC="$(which ccache) gcc"
-            export CXX="$(which ccache) g++"
+            export CC="ccache gcc"
+            export CXX="ccache g++"
         fi
     fi
 }
@@ -297,18 +297,20 @@ validate
 
 init_global
 
+init_package
+
+for item in $source; do
+    process_source $item
+done
+
+set_flags
+
 load_package() {
     is_function $1 && $1
 
     init_package
 
-    for item in $source; do
-	    process_source $item
-    done
-
     go_src_dir
-
-    set_flags
 
     if is_function build; then
     	build
