@@ -162,6 +162,11 @@ is_function () {
 }
 
 do_autobuild () {
+    if [[ $IMPLICIT ]]; then
+        if [[ -d $name-$version ]]; then
+            cd $name-$version
+        fi
+    fi
     if ! [[ -f $MORPH_DIR/builders/$1 ]]; then
         die "No such builder: $1"
     fi
@@ -188,14 +193,6 @@ autobuild () {
     fi
     if ! [[ "$built" ]]; then
         die "Failed to autobuild!"
-    fi
-}
-
-go_src_dir () {
-    cd $srcdir
-    # TODO advanced heuristics :)
-    if [[ -d $name-$version ]]; then
-        cd $name-$version
     fi
 }
 
@@ -325,13 +322,14 @@ done
 set_flags
 
 load_package() {
+    [[ $1 ]] && unset build
     is_function $1 && $1
 
     init_package
 
-    go_src_dir
+    cd $srcdir
 
-    if ( set -e; is_function build && build || autobuild $autobuild; set +e ); then
+    if ( set -e; is_function build && build || IMPLICIT=1 autobuild $autobuild; unset IMPLICIT; set +e ); then
         if [[ "$(find $pkgdir | wc -l)" == "1" ]]; then
             warn "Empty package $name!"
         else
