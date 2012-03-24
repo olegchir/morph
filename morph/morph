@@ -6,11 +6,7 @@ if [[ "$(whoami)" != "root" ]]; then
 fi
 
 if [[ -z $MORPH_DIR ]]; then
-    if [[ -d /usr/share/morph ]]; then
-        MORPH_DIR=/usr/share/morph
-    else
-        MORPH_DIR=$(dirname $(readlink -f $0))
-    fi
+    MORPH_DIR=$(dirname $(readlink -f $0))
 fi
 
 if [[ -z $MORPH_DEBUG ]]; then

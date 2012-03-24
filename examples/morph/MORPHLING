@@ -8,6 +8,7 @@ source="gh:AgiliaLinux/morph"
 tags="console,development,packaging,distro-specific,mpkg"
 
 build () {
-    cd morph
-    PREFIX=$pkgdir ./install.sh
+    mkdir -p $pkgdir/usr/{bin,share}
+    cp -R morph $pkgdir/usr/share
+    ln -s /usr/share/morph/morph $pkgdir/usr/bin/morph
 }

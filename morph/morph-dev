@@ -1,3 +1,0 @@
-#!/bin/sh
-export MORPH_DIR=$(dirname $(readlink -f $0))
-$MORPH_DIR/morph $@
