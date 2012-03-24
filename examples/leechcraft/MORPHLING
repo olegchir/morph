@@ -12,7 +12,7 @@ prepare_source () {
     plugs=$(find -type d -maxdepth 1 -mindepth 1| sed s@./@@g)
     for item in $plugs; do
         cd $item
-        desc=$(ack GetInfo -A 3 -h | grep "\".*\"" -o | tail -n 1 | sed s/\"//g | head -n 1)
+        desc=$(grep -r GetInfo * -A 3 -h | grep "\".*\"" -o | tail -n 1 | sed s/\"//g | head -n 1)
         cd ..
         eval "$item () {
             name=leechcraft-$item

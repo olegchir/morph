@@ -5,7 +5,7 @@ if [[ "$(whoami)" != "root" ]]; then
     exit 0
 fi
 
-if ! [[ $MORPH_DIR ]]; then
+if [[ -z $MORPH_DIR ]]; then
     if [[ -d /usr/share/morph ]]; then
         MORPH_DIR=/usr/share/morph
     else
@@ -23,6 +23,8 @@ declare -r maintainer_name=$maintainer_name
 declare -r maintainer_email=$maintainer_email
 
 . $MORPH_DIR/lib/debug
+
+trap "die Interrupted!" KILL HUP INT TERM
 
 validate () {
     if [[ -z "$maintainer_name" ]]; then
@@ -329,17 +331,27 @@ load_package() {
 
     cd $srcdir
 
-    if ( set -e; is_function build && build || IMPLICIT=1 autobuild $autobuild; unset IMPLICIT; set +e ); then
-        if [[ "$(find $pkgdir | wc -l)" == "1" ]]; then
-            warn "Empty package $name!"
-        else
-            cd $pkgdir
-            for packager in $(find $MORPH_DIR/packagers -type f -executable); do
-            	. $packager
-            	package
-            done
+    unset ok
+
+    if is_function build; then
+        if build; then
+            ok=1
         fi
     else
+        if IMPLICIT=1 autobuild $autobuild; then
+            ok=1
+        fi
+    fi
+    if [[ "$(find $pkgdir | wc -l)" == "1" ]]; then
+        warn "Empty package $name!"
+    else
+        cd $pkgdir
+        for packager in $(find $MORPH_DIR/packagers -type f -executable); do
+            . $packager
+            package
+        done
+    fi
+    if [ -z $ok ]; then
         warn "Failed to build package $name!"
     fi
 }

@@ -12,6 +12,7 @@ warn () {
 
 die () {
     echo -e ${RED}FATAL: $1${RESET} 1>&2
+    rm -rf $tmpdir
     exit 1
 }
 
