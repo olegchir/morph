@@ -102,7 +102,7 @@ process_source () {
     source_item=$1
 
     protocol=$(echo $source_item | cut "-d:" -f1)
-    source_url=$(echo $source_item | sed "s/${protocol}://")
+    source_url=${source_item/$protocol/}
 
     loader=$MORPH_DIR/loaders/$protocol
     if [[ -f $loader ]]; then
