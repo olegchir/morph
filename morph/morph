@@ -104,7 +104,7 @@ process_source () {
     source_item=$1
 
     protocol=$(echo $source_item | cut "-d:" -f1)
-    source_url=${source_item/$protocol/}
+    source_url=${source_item/$protocol:/}
 
     loader=$MORPH_DIR/loaders/$protocol
     if [[ -f $loader ]]; then
@@ -342,16 +342,41 @@ load_package() {
             ok=1
         fi
     fi
-    if [[ "$(find $pkgdir | wc -l)" == "1" ]]; then
-        warn "Empty package $name!"
+    if [[ $ok ]] ; then
+        if [[ -z $IS_DEBUG ]]; then
+            ( IS_DEBUG=1
+            eval "${name}-debug () {
+                name=${name}-dbg
+                description=\"Debug information for $name\"
+ 
+                build () {
+                    for item in \$(find $pkgdir -type f); do
+                        if file \$item | grep -q ELF; then
+                            cd \$(dirname \$item)
+                            item=\$(basename \$item)
+                            debugdir=\$(pwd | sed s@$pkgdir@\$pkgdir@g)
+                            mkdir -p \$debugdir
+                            objcopy --only-keep-debug \$item \$item.dbg
+                            objcopy --add-gnu-debuglink=\$item.dbg \$item
+                            strip -S \$item
+                            mv \$item.dbg \$debugdir
+                        fi
+                    done
+                }
+            }"
+            load_package ${name}-debug
+            unset IS_DEBUG )
+        fi
+	if [[ "$(find $pkgdir | wc -l)" == "1" ]]; then
+	    warn "Empty package $name!"
+	else
+	    cd $pkgdir
+	    for packager in $(find $MORPH_DIR/packagers -type f -executable); do
+		. $packager
+		package
+	    done
+	fi
     else
-        cd $pkgdir
-        for packager in $(find $MORPH_DIR/packagers -type f -executable); do
-            . $packager
-            package
-        done
-    fi
-    if [ -z $ok ]; then
         warn "Failed to build package $name!"
     fi
 }

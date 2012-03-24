@@ -1,0 +1,10 @@
+name=qtmodemmanager
+version=0.5
+
+description="Qt bindings for MM"
+
+source="git:git://anongit.kde.org/libmm-qt"
+
+tags="music,library organizer,player,console,python"
+
+autobuild="cmake"

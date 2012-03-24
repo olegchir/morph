@@ -1,6 +1,6 @@
 #!/bin/sh
 
-default_cmake_keys="-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=RELEASE"
+default_cmake_keys="-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=RelWithDebugInfo"
 
 check () {
     [[ -f CMakeLists.txt ]]
