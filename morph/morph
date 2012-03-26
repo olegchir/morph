@@ -128,6 +128,7 @@ process_source () {
     cd $srcdir
 
     if [[ $returns_dir ]]; then
+        info "Copying $srcpath..."
         if is_function prepare_source; then
             cd $srcpath
             prepare_source
@@ -139,6 +140,7 @@ process_source () {
         unpacked=1
     else
         source_file=$srcpath/$(basename $source_url)
+        info "Extracting $source_file..."
         for unpacker in $(find $MORPH_DIR/unpackers -type f); do
             . $unpacker
             if check; then
