@@ -344,7 +344,8 @@ load_package() {
             eval "${name}-debug () {
                 name=${name}-dbg
                 description=\"Debug information for $name\"
- 
+                depends=${name}
+
                 build () {
                     for item in \$(find $pkgdir -type f); do
                         if file \$item | grep -q ELF; then
@@ -355,6 +356,8 @@ load_package() {
                             objcopy --only-keep-debug \$item \$item.dbg
                             objcopy --add-gnu-debuglink=\$item.dbg \$item
                             strip -S \$item
+
+                            chmod -x \$item.dbg
                             mv \$item.dbg \$debugdir
                         fi
                     done
