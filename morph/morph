@@ -74,7 +74,7 @@ validate () {
                 break
             fi
         done
-        if ! [[ $supported ]]; then
+        if [[ -z $supported ]]; then
             die "Unsupported architecture: $target_arch"
         fi
     fi
@@ -150,7 +150,7 @@ process_source () {
         done
     fi
     
-    if ! [[ $unpacked ]]; then
+    if [[ -z $unpacked ]]; then
         die "Failed to unpack!"
     fi
 }
@@ -196,16 +196,16 @@ autobuild () {
 
 set_flags () {
     num_cpu_cores=$(cat /proc/cpuinfo | grep processor | wc -l)
-    if ! [[ $make_threads ]]; then
+    if [[ -z $make_threads ]]; then
         make_threads=$(($num_cpu_cores + 1))
     fi
     make_keys="-j$make_threads $make_keys"
     if which ccache &> /dev/null; then
         if [[ "$ccache" != "0" ]]; then
-            if ! [[ $ccache ]]; then
+            if [[ -z $ccache ]]; then
                 ccache="4G"
             fi
-            if ! [[ $ccache_path ]]; then
+            if [[ -z $ccache_path ]]; then
                 ccache_path=~/.morph/ccache
             fi
             export CCACHE_DIR=$ccache_path/$target_arch/
