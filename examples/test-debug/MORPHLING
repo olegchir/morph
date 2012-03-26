@@ -1,0 +1,11 @@
+name=debug-test
+version=0.1
+
+description="Test package for debug symbols"
+
+tags="develop,test"
+
+build () {
+    g++ $filedir/test.cpp -o morph-debug-test
+    install -Dm755 morph-debug-test $pkgdir/usr/bin/morph-debug-test
+}
