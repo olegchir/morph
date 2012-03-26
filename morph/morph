@@ -343,26 +343,37 @@ load_package() {
     if [[ $ok ]] ; then
         if [[ -z $IS_DEBUG ]]; then
             ( IS_DEBUG=1
+            if [[ -z $binaries_path ]]; then
+                binaries_path=$pkgdir
+            fi
+            new_bpath=""
+            for item in $binaries_path; do
+                new_bpath="${new_bpath} ${pkgdir}${item}"
+            done
+            binaries_path=$new_bpath
             eval "${name}-debug () {
                 name=${name}-dbg
                 description=\"Debug information for $name\"
                 depends=${name}
 
                 build () {
-                    for item in \$(find $pkgdir -type f); do
+                    info \"Stripping debug symbols...\"
+                    for item in \$(find $binaries_path -type f); do
                         if file \$item | grep -q ELF; then
+                            info \"Processing \$(basename \$item)\"
                             cd \$(dirname \$item)
                             item=\$(basename \$item)
                             debugdir=\$(pwd | sed s@$pkgdir@\$pkgdir@g)
                             mkdir -p \$debugdir
                             objcopy --only-keep-debug \$item \$item.dbg
                             objcopy --add-gnu-debuglink=\$item.dbg \$item
-                            strip -S \$item
+                            strip -S --strip-unneeded \$item
 
                             chmod -x \$item.dbg
                             mv \$item.dbg \$debugdir
                         fi
                     done
+                    info \"Debug stripping complete!\"
                 }
             }"
             load_package ${name}-debug
