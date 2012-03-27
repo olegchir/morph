@@ -10,7 +10,9 @@ if [[ -z $MORPH_DIR ]]; then
 fi
 
 if [[ -z $MORPH_DEBUG ]]; then
-    MORPH_DEBUG=0
+    declare -i MORPH_DEBUG=1
+else
+    declare -i MORPH_DEBUG=$MORPH_DEBUG
 fi
 
 . $MORPH_DIR/morphrc
@@ -225,12 +227,14 @@ set_flags () {
 # -i, --install    -- install package after building
 # -h, --help       -- show help message
 # -s, --spawn      -- spawn a new MORPHLING here
+# -v, --verbose    -- +1 to debug level
+# -q, --quiet      -- -1 to debug level
 # --version        -- set version
 # --build          -- set build
 # --target-arch    -- set target arch (for cross)
 
 # Options parsing black magic
-argv=$(getopt -s bash --options "t:ihs" --longoptions tree:,install,help,spawn,version:,build:,target-arch: -n Morph -- $@)
+argv=$(getopt -s bash --options "t:ihsvq" --longoptions tree:,install,help,spawn,version:,build:,target-arch:,verbose,quiet -n Morph -- $@)
 eval set -- "$argv"
 
 declare -i positional_count=0
@@ -258,6 +262,12 @@ while [[ $1 ]]; do
                 fi
                 cp $MORPH_DIR/SAMPLE MORPHLING
                 exit 0
+                ;;
+            -v|--verbose)
+                MORPH_DEBUG=$((MORPH_DEBUG + 1))
+                ;;
+            -q|--quiet)
+                MORPH_DEBUG=$((MORPH_DEBUG - 1))
                 ;;
             --version)
                 shift

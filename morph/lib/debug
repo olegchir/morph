@@ -17,11 +17,13 @@ die () {
 }
 
 info () {
-    echo -e ${BLUE}INFO: ${RESET} $1 1>&2
+    if [[ $MORPH_DEBUG -gt 0 ]]; then
+        echo -e ${BLUE}INFO: ${RESET} $1 1>&2
+    fi
 }
 
 debug () {
-    if [[ $MORPH_DEBUG -gt 0 ]]; then
-        echo -e ${GREEN}INFO: ${RESET} $1 1>&2
+    if [[ $MORPH_DEBUG -gt 1 ]]; then
+        echo -e ${GREEN}DEBUG: ${RESET} $1 1>&2
     fi
 }
