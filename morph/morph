@@ -354,7 +354,7 @@ load_package() {
         if [[ -z $IS_DEBUG ]]; then
             ( IS_DEBUG=1
             if [[ -z $binaries_path ]]; then
-                binaries_path=$pkgdir
+                binaries_path="/bin /sbin /lib /libexec /usr/bin /usr/sbin /usr/lib /usr/libexec"
             fi
             new_bpath=""
             for item in $binaries_path; do
