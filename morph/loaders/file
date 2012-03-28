@@ -1,0 +1,17 @@
+#!/bin/sh
+
+check () {
+    [[ -f $(basename ${source_url}) ]]
+}
+
+init () {
+    if [[ "$protocol" == "ln" ]]; then
+        ln -s $source_url ./$(basename $source_url)
+    else
+        cp $source_url .
+    fi
+}
+
+update () {
+    # nothing here
+}
