@@ -8,6 +8,11 @@ if ! [[ -f $python ]]; then
     python=$(which $python) &> /dev/null
 fi
 
+if [[ -f /etc/arch-release ]]; then
+    # Running on Arch, fix python2
+    python=$(dirname $python)/python2
+fi
+
 check () {
     [[ -f setup.py ]] && [[ -f $python ]]
 }
