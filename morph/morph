@@ -206,6 +206,7 @@ set_flags () {
         # leave the rest as is
     elif [[ $target_arch == "env" ]]; then
         # we're getting everything from the environment
+        true
     else
         . $MORPH_DIR/arch/$target_arch
     fi
