@@ -368,7 +368,7 @@ load_package() {
 
                 build () {
                     info \"Stripping debug symbols...\"
-                    for item in \$(find $binaries_path -type f); do
+                    for item in \$(find $binaries_path -type f 2>/dev/null); do
                         if file \$item | grep -q ELF; then
                             info \"Processing \$(basename \$item)\"
                             cd \$(dirname \$item)
@@ -390,13 +390,32 @@ load_package() {
             unset IS_DEBUG )
         fi
 	if [[ "$(find $pkgdir | wc -l)" == "1" ]]; then
-	    warn "Empty package $name!"
-	else
-	    cd $pkgdir
-	    for packager in $(find $MORPH_DIR/packagers -type f -executable); do
-		. $packager
-		package
-	    done
+    	    warn "Empty package $name!"
+    	else
+    	    cd $pkgdir
+    	    if [[ -z $IS_DEBUG ]] && [[ -z $no_auto_depends ]]; then
+                info "Generating dependencies..."
+
+                # Dependency generation magic
+                info "Running ldd..."
+                depfiles=""
+                for item in $(find $binaries_path -executable 2>/dev/null); do
+                    if file $item | grep -q ELF; then
+                        depfiles="$depfiles $(ldd $item | grep '=>.*' -o | cut '-d ' -f2)"
+                    fi
+                done
+
+                info "Running modulefinder..."
+                for item in $(find $binaries_path 2>/dev/null); do
+                    if file $item | grep Python; then
+                        depfiles="$depfiles $(python -m modulefinder $item | grep "^[mP]" | grep -v ~ | sed 's/.* //')"
+                    fi
+                done
+            fi
+    	    for packager in $(find $MORPH_DIR/packagers -type f -executable); do
+    		    . $packager
+        		package
+	        done
 	fi
     else
         warn "Failed to build package $name!"

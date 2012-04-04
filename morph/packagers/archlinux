@@ -11,11 +11,21 @@ package() {
 pkgname = $name
 pkgver = $version
 pkgdesc = $description
+builddate = $(date -u "+%s")
 packager = $maintainer_name
 size = $(du .)"
+arch = $target_arch
 HERE
+    pkgs=""
+    for item in $depfiles; do
+        pkgs="$pkgs $(LC_ALL=C pacman -Qo $item | sed "s/.*is owned by //" | cut "-d " -f1)"
+    done
+    pkgs=$(echo $pkgs | tr " " "\n" | sort | uniq | tr "\n" " ")
+    for item in $pkgs; do
+        echo "depend = $item" >> .PKGINFO
+    done
     pkgfile=$package_out_dir/$name-$version-$arch-$mbuild.pkg.tar.xz
-    tar cJf $pkgfile *
+    tar cJf $pkgfile .PKGINFO *
     rm -rf $workdir
 }
 

@@ -29,8 +29,8 @@ XML
     done
     echo "</tags></package>" >> install/data.xml
 
-    info "Generating deps..."
-    mpkg-gendeps2 .
+#    info "Generating deps..."
+#    mpkg-gendeps2 .
 
     pkgfile=$package_out_dir/$name-$version-$arch-$mbuild.txz
 
