@@ -214,6 +214,8 @@ set_flags () {
         make_threads=$(($num_cpu_cores + 1))
     fi
     make_keys="-j$make_threads $make_keys"
+    export CC="$toolchain_prefix/bin/gcc"
+    export CXX="$toolchain_prefix/bin/g++"
     if which ccache &> /dev/null; then
         if [[ "$ccache" != "0" ]]; then
             if [[ -z $ccache ]]; then
@@ -225,8 +227,8 @@ set_flags () {
             export CCACHE_DIR=$ccache_path/$target_arch/
             mkdir -p $CCACHE_DIR
             ccache -M $ccache
-            export CC="ccache $toolchain_prefix/bin/gcc"
-            export CXX="ccache $toolchain_prefix/bin/g++"
+            export CC="ccache $CC"
+            export CXX="ccache $CXX"
         fi
     fi
 }
