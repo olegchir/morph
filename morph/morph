@@ -45,7 +45,7 @@ validate () {
     fi
     if [[ -z "$arch" ]]; then
         warn "Arch is not set. Using arch=any by default"
-        arch=any
+        arch=auto
     fi
     if [[ -z "$description" ]]; then
         die "Description is not set!"
@@ -65,10 +65,10 @@ validate () {
         target_arch="$(uname -m)"
     fi
 
-    if [[ "$arch" == "any" ]]; then
+    if [[ "$arch" == "auto" ]]; then
         arch=$target_arch
     elif [[ "$arch" == "noarch" ]]; then
-        arch=none
+        arch=any
     else
         for item in $arch; do
             if [[ "$item" == "$target_arch" ]]; then
@@ -175,6 +175,8 @@ do_autobuild () {
     . $MORPH_DIR/builders/$1
     if check; then
         debug "Using builder $1"
+        shift
+        eval "${1}_keys=$@"
         build || false
     else
         false
@@ -183,7 +185,7 @@ do_autobuild () {
 
 autobuild () {
     if [[ $1 ]]; then
-        do_autobuild $1 && built=1
+        do_autobuild $@ && built=1
     else
         for builder in $(find $MORPH_DIR/builders -type f); do
             if do_autobuild $(basename $builder); then
@@ -199,6 +201,14 @@ autobuild () {
 }
 
 set_flags () {
+    if [[ $target_arch == $(uname -m) ]]; then
+        toolchain_prefix=/usr
+        # leave the rest as is
+    elif [[ $target_arch == "env" ]]; then
+        # we're getting everything from the environment
+    else
+        . $MORPH_DIR/arch/$target_arch
+    fi
     num_cpu_cores=$(cat /proc/cpuinfo | grep processor | wc -l)
     if [[ -z $make_threads ]]; then
         make_threads=$(($num_cpu_cores + 1))
@@ -210,14 +220,13 @@ set_flags () {
                 ccache="4G"
             fi
             if [[ -z $ccache_path ]]; then
-                ccache_path=~/.morph/ccache
+                ccache_path=~/.morph/ccache/
             fi
             export CCACHE_DIR=$ccache_path/$target_arch/
             mkdir -p $CCACHE_DIR
             ccache -M $ccache
-            # TODO not cross friendly
-            export CC="ccache gcc"
-            export CXX="ccache g++"
+            export CC="ccache $toolchain_prefix/bin/gcc"
+            export CXX="ccache $toolchain_prefix/bin/g++"
         fi
     fi
 }
