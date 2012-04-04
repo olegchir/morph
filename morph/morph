@@ -419,11 +419,17 @@ load_package() {
 
                 info "Running modulefinder..."
                 for item in $(find $binaries_path 2>/dev/null); do
-                    if file $item | grep Python; then
-                        depfiles="$depfiles $(python -m modulefinder $item | grep "^[mP]" | grep -v ~ | sed 's/.* //')"
+                    if file $item | grep -q Python; then
+                        if [[ -z "$python" ]]; then
+                            python=python2
+                        fi
+                        depfiles="$depfiles $($python -m modulefinder $item | grep "^[mP]" | grep -v ~ | sed 's/.* //')"
                     fi
                 done
             fi
+
+            depfiles=$(echo $depfiles | tr " " "\n" | sort | uniq)
+
     	    for packager in $(find $MORPH_DIR/packagers -type f -executable); do
     		    . $packager
         		package
