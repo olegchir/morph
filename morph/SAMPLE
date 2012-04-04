@@ -1,0 +1,19 @@
+# Package metadata
+name=sample-package
+version=0.1
+mbuild=1  # default
+arch=auto # default, can be "x86_64 i686" (whitespace separated list). noarch == any
+source="http://127.0.0.1/blah/blah.tar.gz" # any supported
+make_threads=1 # useful to force to 1, autodetected if not set
+ccache=0 # useful to force to 0 or set size (e.g. 4G)
+binaries_path="/usr/bin /opt" # use some special path for dependency generation
+no_auto_depends=1 # kills dependency generation. pretty much the same as binaries_path=" "
+autobuild="cmake" # use a build system
+cmake_keys="-DSTUFF_WIN" # add some keys to autobuild
+# ==================== OR ====================
+build() {
+    # if both build and autobuild are present, autobuild is killed
+    # build always starts in $srcdir
+    cd $name-$version/
+    autobuild cmake -DSTUFF=FAIL
+}
