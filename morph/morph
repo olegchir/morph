@@ -428,7 +428,7 @@ load_package() {
                 done
             fi
 
-            depfiles=$(echo $depfiles | tr " " "\n" | sort | uniq)
+            depfiles=$(echo $depfiles | tr " " "\n" | grep -v "^[.]" | sort | uniq)
 
     	    for packager in $(find $MORPH_DIR/packagers -type f -executable); do
     		    . $packager
